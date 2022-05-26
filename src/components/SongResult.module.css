@@ -1,0 +1,42 @@
+.result {
+    width: 400px;
+    margin: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #b3b3b3;
+}
+
+.result:hover {
+    border: 1px solid white;
+    cursor: pointer;
+}
+
+.nameAndImage {
+    display: flex;
+    align-items: center;
+}
+
+.nameAndArtists {
+    margin-left: 10px;
+}
+
+.songName {
+    font-weight: bold;
+    color: white;
+}
+
+.artists {
+    color: #b3b3b3;
+    font-size: 0.8em;
+}
+
+.artists > span:not(:last-child)::after {
+    content: ', '
+}
+
+.duration {
+    color: #b3b3b3;
+}
