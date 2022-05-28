@@ -2,10 +2,11 @@ import { Song } from '../types/song';
 import { User } from '../types/user';
 import { generateCodeChallenge, generateRandomString } from '../utils/crypto';
 import { urlWithParams } from '../utils/url';
-// import { setUser } from '../store/userStore';
+import { api } from '../utils/api';
 
 const client_id = '27412d23a0d54a33bb473391a47712b8';
 const redirect_uri = 'http://localhost:3000/';
+// const redirect_uri = 'https://spotify.fymmit.com/';
 
 export const redirectToSpotifyAuthorizeEndpoint = async () => {
     let code_verifier = localStorage.getItem('code_verifier');
@@ -17,7 +18,7 @@ export const redirectToSpotifyAuthorizeEndpoint = async () => {
 
     const code_challenge = await generateCodeChallenge(code_verifier);
 
-    window.location = urlWithParams('https://accounts.spotify.com/authorize', {
+    (window as any).location = urlWithParams('https://accounts.spotify.com/authorize', {
         response_type: 'code',
         client_id,
         scope: 'user-modify-playback-state',
@@ -35,7 +36,7 @@ export const exchangeToken = (code: string) => {
         return;
     }
 
-    fetch('https://accounts.spotify.com/api/token', {
+    return fetch('https://accounts.spotify.com/api/token', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
@@ -76,72 +77,17 @@ export const refreshToken = () => {
 }
 
 export const getUser = async () => {
-    const access_token = localStorage.getItem('access_token');
-    const expires_at = Number(localStorage.getItem('expires_at'));
-
-    if (!access_token) {
-        alert('Not logged in.');
-        return;
-    }
-
-    if (new Date() > new Date(expires_at)) {
-        await refreshToken();
-    }
-
-    return fetch('https://api.spotify.com/v1/me', {
-        headers: {
-            Authorization: 'Bearer ' + access_token,
-        }
-    })
-    .then(res => res.json()
-    .then((data: User) => data));
+    return await api.get('https://api.spotify.com/v1/me');
 }
 
 export const querySongs = async (query: string) => {
-    const access_token = localStorage.getItem('access_token');
-    const expires_at = Number(localStorage.getItem('expires_at'));
-
-    if (!access_token) {
-        alert('Not logged in.');
-        return;
-    }
-
-    if (new Date() > new Date(expires_at)) {
-        await refreshToken();
-    }
-
-    return fetch(`https://api.spotify.com/v1/search?type=track&q=${query}`, {
-        headers: {
-            Authorization: 'Bearer ' + access_token,
-        }
-    })
-    .then(res => res.json()
-    .then(data => {
-        const items: Song[] = data.tracks.items;
-
-        return items;
-    }));
+    const data = await api.get(`https://api.spotify.com/v1/search?type=track&q=${query}`);
+    const songs = data.tracks.items;
+    return songs;
 }
 
 export const addToQueue = async (uri: string) => {
-    const access_token = localStorage.getItem('access_token');
-    const expires_at = Number(localStorage.getItem('expires_at'));
-
-    if (!access_token) {
-        alert('Not logged in.');
-        return;
-    }
-
-    if (new Date() > new Date(expires_at)) {
-        await refreshToken();
-    }
-
-    return fetch(`https://api.spotify.com/v1/me/player/queue?uri=${uri}`, {
-        method: 'POST',
-        headers: {
-            Authorization: 'Bearer ' + access_token,
-        }
-    });
+    return await api.post(`https://api.spotify.com/v1/me/player/queue?uri=${uri}`);
 }
 
 const handleTokenResponse = (data: any) => {

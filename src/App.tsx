@@ -13,21 +13,28 @@ const App: Component = () => {
   const [searchResults, setSearchResults] = createSignal<Song[]>([]);
   const [search, setSearch] = createSignal('');
 
-  createEffect(() => {
+  const updateUser = async () => {
+    const data = await getUser();
+    setUser(data);
+  }
+
+  createEffect(async () => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
     if (code) {
       window.history.replaceState({}, document.title, '/');
-      exchangeToken(code);
+      await exchangeToken(code);
+      updateUser();
     }
   });
 
   createEffect(async () => {
     if (user() === undefined && localStorage.getItem('access_token')) {
-      const data = await getUser();
-      setUser(data);
+      updateUser();
     }
   });
+
+  createEffect(() => console.log(searchResults()));
 
   return (
     <div class={styles.App}>
@@ -55,8 +62,10 @@ const App: Component = () => {
         <form
           onsubmit={async (e) => {
             e.preventDefault();
-            const songs = await querySongs(search());
-            setSearchResults(songs!);
+            if (search().length > 0) {
+              const songs = await querySongs(search());
+              setSearchResults(songs!);
+            }
           }}
         >
           <input class={styles.search} type="text" onChange={(e) => setSearch(e.target.value)} />
