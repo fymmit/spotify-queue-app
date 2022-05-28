@@ -1,6 +1,6 @@
 import { refreshToken } from '../spotify';
 
-const makeRequest = async (url: string, method: string) => {
+const makeRequest = async <T>(url: string, method: string) => {
     let access_token = localStorage.getItem('access_token');
     const expires_at = Number(localStorage.getItem('expires_at'));
 
@@ -24,7 +24,7 @@ const makeRequest = async (url: string, method: string) => {
         if (res.status === 204) {
             return;
         }
-        const data = await res.json();
+        const data: T = await res.json();
         return data;
     } else {
         const { error }: { error: { status: number; message: string; }; } = await res.json();
@@ -33,8 +33,8 @@ const makeRequest = async (url: string, method: string) => {
     }
 }
 
-const get = (url: string) => makeRequest(url, 'GET');
-const post = (url: string) => makeRequest(url, 'POST');
+const get = <T>(url: string) => makeRequest<T>(url, 'GET');
+const post = <T>(url: string) => makeRequest<T>(url, 'POST');
 
 export const api = {
     get,

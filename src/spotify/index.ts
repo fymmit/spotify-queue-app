@@ -3,10 +3,13 @@ import { User } from '../types/user';
 import { generateCodeChallenge, generateRandomString } from '../utils/crypto';
 import { urlWithParams } from '../utils/url';
 import { api } from '../utils/api';
+import { PlayerState } from '../types/player-state';
 
 const client_id = '27412d23a0d54a33bb473391a47712b8';
 const redirect_uri = 'http://localhost:3000/';
 // const redirect_uri = 'https://spotify.fymmit.com/';
+
+const apiBase = 'https://api.spotify.com/v1';
 
 export const redirectToSpotifyAuthorizeEndpoint = async () => {
     let code_verifier = localStorage.getItem('code_verifier');
@@ -21,7 +24,7 @@ export const redirectToSpotifyAuthorizeEndpoint = async () => {
     (window as any).location = urlWithParams('https://accounts.spotify.com/authorize', {
         response_type: 'code',
         client_id,
-        scope: 'user-modify-playback-state',
+        scope: 'user-modify-playback-state user-read-playback-state',
         code_challenge_method: 'S256',
         code_challenge,
         redirect_uri
@@ -77,17 +80,21 @@ export const refreshToken = () => {
 }
 
 export const getUser = async () => {
-    return await api.get('https://api.spotify.com/v1/me');
+    return await api.get<User>(`${apiBase}/me`);
 }
 
 export const querySongs = async (query: string) => {
-    const data = await api.get(`https://api.spotify.com/v1/search?type=track&q=${query}`);
-    const songs = data.tracks.items;
+    const data = await api.get<any>(`${apiBase}/search?type=track&q=${query}`);
+    const songs: Song[] = data.tracks.items;
     return songs;
 }
 
 export const addToQueue = async (uri: string) => {
-    return await api.post(`https://api.spotify.com/v1/me/player/queue?uri=${uri}`);
+    return await api.post(`${apiBase}/me/player/queue?uri=${uri}`);
+}
+
+export const getPlaybackState = async () => {
+    return await api.get<PlayerState>(`${apiBase}/me/player`);
 }
 
 const handleTokenResponse = (data: any) => {

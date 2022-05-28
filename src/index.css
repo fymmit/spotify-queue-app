@@ -17,3 +17,9 @@ code {
 input:focus {
   outline: 0;
 }
+
+.flexRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
