@@ -4,7 +4,7 @@ import { render } from 'solid-js/web';
 import './index.css';
 import App from './App';
 
-const version = '0.0.1';
+const version = '0.0.3';
 
 const storedVersion = localStorage.getItem('version');
 

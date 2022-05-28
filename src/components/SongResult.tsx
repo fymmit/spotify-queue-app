@@ -5,21 +5,22 @@ import { msToLength } from '../utils/time';
 import { Song } from '../types/song';
 import classNames from 'classnames';
 
-interface ReadOnly {
+interface OptionalProps {
     readOnly?: boolean;
     progress_ms?: number;
+    addToQueueList?: () => void;
 }
 
-type Props = Song & ReadOnly;
+type Props = Song & OptionalProps;
 
 const SongResult = (props: Props) => {
     const [showAddedToQueue, setShowAddedToQueue] = createSignal(false);
 
-    // createEffect(() => {
-    //     if (showAddedToQueue()) {
-    //         setTimeout(() => setShowAddedToQueue(false), 1500);
-    //     }
-    // });
+    createEffect(() => {
+        if (showAddedToQueue()) {
+            setTimeout(() => setShowAddedToQueue(false), 1500);
+        }
+    });
     
     return (
         <div
@@ -31,6 +32,9 @@ const SongResult = (props: Props) => {
             onclick={!props.readOnly ? async () => {
                 await addToQueue(props.uri);
                 setShowAddedToQueue(true);
+                if (props.addToQueueList) {
+                    props.addToQueueList();
+                }
             } : undefined}
         >
             <div class={styles.nameAndImage}>
@@ -47,7 +51,7 @@ const SongResult = (props: Props) => {
                 </div>
             </div>
             <div class={styles.duration}>
-                {props.readOnly
+                {props.readOnly && props.progress_ms
                     ? `${msToLength(props.progress_ms!)} / ${msToLength(props.duration_ms)}`
                     : msToLength(props.duration_ms)}
             </div>

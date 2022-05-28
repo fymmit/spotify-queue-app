@@ -21,5 +21,13 @@ input:focus {
 .flexRow {
   display: flex;
   justify-content: space-between;
+  width: 100%;
+}
+
+.flexRow > * {
+  min-width: 50%;
+}
+
+.center {
   align-items: center;
 }

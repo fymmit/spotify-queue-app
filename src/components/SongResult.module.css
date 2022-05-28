@@ -11,12 +11,6 @@
     cursor: default;
 }
 
-.addedToQueue::after {
-    content: 'In queue';
-    position: absolute;
-    right: -70px;
-}
-
 .result:not(.readOnly):hover {
     border: 1px solid white;
     cursor: pointer;
