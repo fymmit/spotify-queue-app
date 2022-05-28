@@ -97,37 +97,39 @@ const App: Component = () => {
       <UserProfile
         user={user()}
       />
-      <div class='flexRow'>
-        <form
-          onsubmit={async (e) => {
-            e.preventDefault();
-            if (search().length > 0) {
-              const songs = await querySongs(search());
-              setSearchResults(songs!);
-            } else {
-              setSearch('');
-              setSearchResults([]);
-            }
-          }}
-        >
-          <input
-            class={styles.search}
-            type="text"
-            onChange={(e) => setSearch((e.target as any).value)}
-            placeholder="Search tracks"
-            value={search()}
+      {playerState() && (
+        <div class='flexRow'>
+          <form
+            onsubmit={async (e) => {
+              e.preventDefault();
+              if (search().length > 0) {
+                const songs = await querySongs(search());
+                setSearchResults(songs!);
+              } else {
+                setSearch('');
+                setSearchResults([]);
+              }
+            }}
+          >
+            <input
+              class={styles.search}
+              type="text"
+              onChange={(e) => setSearch((e.target as any).value)}
+              placeholder="Search tracks"
+              value={search()}
+            />
+          </form>
+          <SongResult
+            album={playerState()!.item.album}
+            artists={playerState()!.item.artists}
+            duration_ms={playerState()!.item.duration_ms}
+            name={playerState()!.item.name}
+            uri={playerState()!.item.uri}
+            readOnly
+            progress_ms={progress()}
           />
-        </form>
-        <SongResult
-          album={playerState()!.item.album}
-          artists={playerState()!.item.artists}
-          duration_ms={playerState()!.item.duration_ms}
-          name={playerState()!.item.name}
-          uri={playerState()!.item.uri}
-          readOnly
-          progress_ms={progress()}
-        />
-      </div>
+        </div>
+      )}
       {searchResults().length > 0 && (
         <h3>Results</h3>
       )}
